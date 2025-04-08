@@ -28,7 +28,10 @@ if (typeof $.fn.datepicker === "undefined") {
             class: "ui-datepicker-trigger",
             css: { cursor: "pointer" },
             alt: "...",
+            title: "...",
           });
+          const autoComplete = buttonImageOnly ? "off" : "on";
+          $img.attr("autocomplete", autoComplete);
 
           // Insert the image after the input field
           $input.after($img);
