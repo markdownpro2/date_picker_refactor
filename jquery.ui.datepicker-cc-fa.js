@@ -14,36 +14,48 @@ if (typeof $.fn.datepicker === "undefined") {
     console.warn("Old datepicker called. Redirecting to jalaliDatepicker...");
     const { showOn, buttonImage, buttonImageOnly } = options;
 
-    if (showOn === "button") {
-      const img = document.createElement("img");
-      if (this.parentNode) {
-        this.parentNode.insertBefore(img, this.nextSibling);
-      } else {
-        console.error("Cannot insert image: parentNode is undefined.");
-      }
-      img.src = buttonImage;
-      img.className = "ui-datepicker-trigger";
-      img.style.cursor = "pointer";
+    return this.each(function () {
+      const $input = $(this);
 
-      let isShowing = false;
-      img.addEventListener("click", function () {
-        if (isShowing) {
-          jalaliDatepicker.hideDatepicker();
-        } else {
-          jalaliDatepicker.showDatepicker(this.previousSibling);
+      // Handle "button" option by inserting an image trigger
+      if (showOn === "button") {
+        const $nextElem = $input.next(".ui-datepicker-trigger");
+
+        // Only add the image if it doesn't already exist
+        if ($nextElem.length === 0) {
+          const $img = $("<img>", {
+            src: buttonImage,
+            class: "ui-datepicker-trigger",
+            css: { cursor: "pointer" },
+            alt: "...",
+          });
+
+          // Insert the image after the input field
+          $input.after($img);
+
+          let isShowing = false;
+
+          $img.on("click", function () {
+            if (isShowing) {
+              jalaliDatepicker.hide();
+            } else {
+              jalaliDatepicker.show($input[0]);
+            }
+            isShowing = !isShowing;
+          });
         }
-        isShowing = !isShowing;
-      });
-      return this;
-    }
+        return;
+      }
 
-    this.each(function () {
-      if (!this.classList.contains("jalali-intitialized")) {
-        jalaliDatepicker.startWatch({ ...options, selector: `#${this.id}` });
-        this.classList.add("jalali-intitialized", "calender");
+      // Initialize jalaliDatepicker if not already initialized
+      if (!$input.hasClass("jalali-intitialized")) {
+        jalaliDatepicker.startWatch({
+          ...options,
+          selector: `#${$input.attr("id")}`,
+        });
+        $input.addClass("jalali-intitialized calender");
       }
     });
-    return this;
   };
 }
 
