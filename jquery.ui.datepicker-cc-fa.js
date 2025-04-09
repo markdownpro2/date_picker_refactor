@@ -62,6 +62,12 @@ if (typeof $.fn.datepicker === "undefined") {
   };
 }
 
+function displayDatePicker(dateElement) {
+  console.warn(
+    "Old displayDatePicker called. Redirecting to jalaliDatepicker..."
+  );
+}
+
 function JalaliDate(p0, p1, p2) {
   var gregorianDate;
   var jalaliDate;

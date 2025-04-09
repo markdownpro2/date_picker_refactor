@@ -1143,11 +1143,10 @@ It sets the default date format and other settings for the JalaliDatePicker comp
  */
 const DATE_SELECTORS = [
   "input.calender",
-  'input[id*="date"]',
-  'input[id*="Date"]',
-  'input[class*="date"]',
-  'input[class*="Date"]',
+  'input[id*="date" i]',
+  'input[class*="date" i]',
   "input[js-date-type]",
+  'td[class*="date" i]>input',
 ];
 const TRIGGER_SELECTORS = [".jalali-datepicker-trigger"];
 const TRIGGER_ELEMENT_TYPES = ["img"];
@@ -1157,6 +1156,7 @@ const JALALI_TRIGGER_CLASS = "jalali-datepicker-trigger";
 const JALALI_OPTIONS = {
   separatorChars: { date: "" },
   zIndex: 1000,
+  selector: `.${JALALI_CALENDAR_CLASS}`,
 };
 
 /**
@@ -1170,7 +1170,7 @@ const initializeDatePicker = (inputElement) => {
     try {
       jalaliDatepicker.startWatch({
         ...JALALI_OPTIONS,
-        selector: `#${inputElement.id}`,
+        selector: inputElement.id && `#${inputElement.id}`,
       });
       inputElement.classList.add(
         JALALI_INITIALIZED_CLASS,
@@ -1251,7 +1251,14 @@ const jalaliDatePickerConfig = () => {
   const dateInputs = document.querySelectorAll(DATE_SELECTORS.join(", "));
   dateInputs.forEach((inputElement) => initializeDatePicker(inputElement));
   dateInputs.forEach((dateElement) => initializeTriggerButton(dateElement));
+
+  setTimeout(() => {
+    jalaliDatepicker.startWatch(JALALI_OPTIONS);
+  }, 500);
 };
 
 // Initialize the JalaliDatePicker when the document is ready
 document.addEventListener("DOMContentLoaded", jalaliDatePickerConfig);
+document.onchange = () => {
+  jalaliDatepicker.startWatch(JALALI_OPTIONS);
+};
