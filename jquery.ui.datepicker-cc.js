@@ -1158,6 +1158,8 @@ const JALALI_OPTIONS = {
   zIndex: 1000,
   selector: `.${JALALI_CALENDAR_CLASS}`,
 };
+const TIMEOUT_CALENDAR = 50;
+const ON_CHANGE_SELECTORS = ['select[id*="ddlSendGroups" i]'];
 
 /**
  * Initializes a Jalali date picker on the specified input element if it has not already been initialized.
@@ -1239,6 +1241,22 @@ const initializeTriggerButton = (dateElement) => {
   }
 };
 
+function normalizeDatePickers() {
+  document
+    .querySelectorAll('input:not([type="hidden"])')
+    .forEach(function (input) {
+      const id = input.id?.toLowerCase() || "";
+      const cls = input.className?.toLowerCase() || "";
+      const name = input.name?.toLowerCase() || "";
+      const attrs = [id, cls, name].join(" ");
+      if (/date/i.test(attrs)) {
+        if (!input.classList.contains(JALALI_CALENDAR_CLASS)) {
+          input.classList.add(JALALI_CALENDAR_CLASS);
+        }
+      }
+    });
+}
+
 /**
  * Initializes the Jalali date picker for all input elements matching the specified selectors.
  * This function selects all elements matching the `DATE_SELECTORS` array,
@@ -1248,17 +1266,20 @@ const initializeTriggerButton = (dateElement) => {
  * @returns {void}
  */
 const jalaliDatePickerConfig = () => {
-  const dateInputs = document.querySelectorAll(DATE_SELECTORS.join(", "));
-  dateInputs.forEach((inputElement) => initializeDatePicker(inputElement));
-  dateInputs.forEach((dateElement) => initializeTriggerButton(dateElement));
-
+  // This will normalize the date picker inputs
+  normalizeDatePickers();
   setTimeout(() => {
     jalaliDatepicker.startWatch(JALALI_OPTIONS);
-  }, 500);
+  }, TIMEOUT_CALENDAR);
 };
 
 // Initialize the JalaliDatePicker when the document is ready
-document.addEventListener("DOMContentLoaded", jalaliDatePickerConfig);
-document.onchange = () => {
-  jalaliDatepicker.startWatch(JALALI_OPTIONS);
+document.addEventListener("DOMContentLoaded", () => {
+  jalaliDatePickerConfig();
+});
+
+document.onchange = (e) => {
+  if (ON_CHANGE_SELECTORS.some((selector) => e.target.matches(selector))) {
+    jalaliDatepicker.startWatch(JALALI_OPTIONS);
+  }
 };
